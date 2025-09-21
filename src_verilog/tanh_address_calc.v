@@ -5,7 +5,7 @@ module tanh_address_calculator #(
     parameter ADDR_WIDTH = 9,            // 9 bits for 276 addresses (0 to 275)
     parameter LUT_MIN_FIXED = 12'd16,    // 0.25 in S1.5.6 format (0.25 * 64 = 16)
     parameter LUT_MAX_FIXED = 12'd192,   // 3.00 in S1.5.6 format (3.0 * 64 = 192)
-    parameter LUT_STEP_FIXED = 12'd1     // 0.01 increment in fixed-point (~0.64 ≈ 1)
+    parameter LUT_STEP_FIXED = 12'd1     // Step size in fixed-point (approximately 0.015625)
 )(
     input wire [INPUT_WIDTH-1:0] input_value,    // Fixed-point input value
     output reg [ADDR_WIDTH-1:0] address,         // LUT address output
@@ -21,17 +21,25 @@ module tanh_address_calculator #(
     // Extract sign bit for tanh symmetry handling
     assign sign_bit = input_value[INPUT_WIDTH-1];
     
-    // Calculate absolute value (remove sign bit)
-    // For negative numbers: two's complement conversion
-    assign input_abs = sign_bit ? (~input_value + 1'b1) : input_value;
+    // Calculate absolute value for sign-magnitude format
+    // Simply extract the magnitude part (remove sign bit)
+    assign input_abs = {1'b0, input_value[INPUT_WIDTH-2:0]};
     
     // Calculate offset from minimum LUT value
     // This gives us how far the input is from the start of our LUT range
     assign offset = (input_abs >= LUT_MIN_FIXED) ? (input_abs - LUT_MIN_FIXED) : 12'd0;
     
     // Convert offset to address
-    // Since our step size is approximately 1 in fixed-point, address ≈ offset
-    assign calculated_addr = offset;
+    // The LUT has 276 entries covering range 0.25 to 3.0
+    // Step size in real world: (3.0 - 0.25) / 275 = 0.01
+    // Step size in S1.5.6: 0.01 * 64 = 0.64 ≈ 1 (but not exactly)
+    // 
+    // For input 1.0: offset = 64 - 16 = 48
+    // But LUT address should be: (1.0 - 0.25) / 0.01 = 75
+    // 
+    // So we need: address = offset * 64 / (0.01 * 64 * 64) = offset * 100 / 64
+    // Simplified: address = (offset * 100) / 64
+    assign calculated_addr = (offset * 100) / 64;
     
     // Address calculation and range checking
     always @(*) begin

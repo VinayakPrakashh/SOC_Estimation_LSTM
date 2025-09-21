@@ -69,29 +69,29 @@ module tb_tanh_calc;
         $display("===============================================================================================================");
         
         // Test 1: Zero input
-        run_test(12'hfff, 12'b100001000000, "Zero input -> Zero output");
+        run_test(12'b000000000000, 12'b000000000000, "Zero input -> Zero output");
         
-        // Test 2: Small positive values (linear region - output ? input)
+        // Test 2: Small positive values (linear region - output ≈ input)
         run_test(12'b000000001000, 12'b000000001000, "Small positive (0.125) -> linear");
         run_test(12'b000000001111, 12'b000000001111, "Small positive (0.234) -> linear");
         
         // Test 3: LUT range positive (use expected tanh values)
-        run_test(12'b000000010000, 12'b000000001111, "LUT: tanh(0.25) ? 0.244");   // tanh(0.25) ? 15/64
-        run_test(12'b000001000000, 12'b000000110000, "LUT: tanh(1.0) ? 0.762");    // tanh(1.0) ? 48/64
-        run_test(12'b000011000000, 12'b000000111111, "LUT: tanh(3.0) ? 0.995");    // tanh(3.0) ? 63/64
+        run_test(12'b000000010000, 12'b000000001111, "LUT: tanh(0.25) ≈ 0.244");   // tanh(0.25) ≈ 15/64
+        run_test(12'b000001000000, 12'b000000110000, "LUT: tanh(1.0) ≈ 0.762");    // tanh(1.0) ≈ 48/64
+        run_test(12'b000011000000, 12'b000000111111, "LUT: tanh(3.0) ≈ 0.995");    // tanh(3.0) ≈ 63/64
         
         // Test 4: Large positive (saturation to +1.0)
         run_test(12'b000100000000, 12'b000001000000, "Large positive -> +1.0");    // +1.0 = 64/64
         run_test(12'b001111111111, 12'b000001000000, "Max positive -> +1.0");      // +1.0 = 64/64
         
-        // Test 5: Small negative values (linear region - output ? input)
+        // Test 5: Small negative values (linear region - output ≈ input)
         run_test(12'b100000001000, 12'b100000001000, "Small negative (-0.125) -> linear");
         run_test(12'b100000001111, 12'b100000001111, "Small negative (-0.234) -> linear");
         
         // Test 6: LUT range negative (use negated tanh values with sign bit)
-        run_test(12'b100000010000, 12'b100000001111, "LUT: tanh(-0.25) ? -0.244");  // -tanh(0.25)
-        run_test(12'b100001000000, 12'b100000110000, "LUT: tanh(-1.0) ? -0.762");   // -tanh(1.0)
-        run_test(12'b100011000000, 12'b100000111111, "LUT: tanh(-3.0) ? -0.995");   // -tanh(3.0)
+        run_test(12'b100000010000, 12'b100000001111, "LUT: tanh(-0.25) ≈ -0.244");  // -tanh(0.25)
+        run_test(12'b100001000000, 12'b100000110000, "LUT: tanh(-1.0) ≈ -0.762");   // -tanh(1.0)
+        run_test(12'b100011000000, 12'b100000111111, "LUT: tanh(-3.0) ≈ -0.995");   // -tanh(3.0)
         
         // Test 7: Large negative (saturation to -1.0)
         run_test(12'b100100000000, 12'b100001000000, "Large negative -> -1.0");     // -1.0
@@ -120,9 +120,9 @@ module tb_tanh_calc;
         end
         
         $display("\nExpected behavior verification:");
-        $display("  - Small inputs (|x| < 0.25): output ? input (linear approximation)");
-        $display("  - Medium inputs (0.25 ? |x| ? 3.0): use LUT values");
-        $display("  - Large inputs (|x| > 3.0): saturate to �1.0 (64/64 in fixed-point)");
+        $display("  - Small inputs (|x| < 0.25): output ≈ input (linear approximation)");
+        $display("  - Medium inputs (0.25 ≤ |x| ≤ 3.0): use LUT values");
+        $display("  - Large inputs (|x| > 3.0): saturate to ±1.0 (64/64 in fixed-point)");
         $display("  - Zero input: output = 0");
         
         $display("\nTest complete!");
