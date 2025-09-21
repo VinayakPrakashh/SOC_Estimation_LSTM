@@ -69,7 +69,7 @@ module tb_tanh_calc;
         $display("===============================================================================================================");
         
         // Test 1: Zero input
-        run_test(12'hfff, 12'b100001000000, "Zero input -> Zero output");
+        run_test(12'b011001101100, 12'b100001000000, "Zero input -> Zero output");
         
         // Test 2: Small positive values (linear region - output ? input)
         run_test(12'b000000001000, 12'b000000001000, "Small positive (0.125) -> linear");
