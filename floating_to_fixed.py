@@ -22,7 +22,7 @@ def fixed_to_float(fixed_val):
 
 # ----------------- TEST -----------------
 if __name__ == "__main__":
-    a_float = 12.84
+    a_float = 0.171875
     c_float = -2.5
 
     # Encode
