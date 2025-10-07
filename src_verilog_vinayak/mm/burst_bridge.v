@@ -1,13 +1,14 @@
 module bram_burst #(
     parameter DATA_WIDTH = 12,
     parameter ADDR_WIDTH = 10,
-    parameter NUM_PORTS = 16
+    parameter NUM_PORTS = 16,
+    parameter MATRIX_WIDTH = 96 // Number of columns in the matrix
 ) (
     input clk,
     input rst,
     input start,
     input [DATA_WIDTH-1:0] data_in,
-    input [ADDR_WIDTH-1:0] addr,
+    input [ADDR_WIDTH-1:0] base_addr,
     output reg we,
     output reg [DATA_WIDTH-1:0] data_out_0,
     output reg [DATA_WIDTH-1:0] data_out_1,
@@ -25,15 +26,18 @@ module bram_burst #(
     output reg [DATA_WIDTH-1:0] data_out_13,
     output reg [DATA_WIDTH-1:0] data_out_14,
     output reg [DATA_WIDTH-1:0] data_out_15,
-    output reg done
+    output reg [ADDR_WIDTH-1:0] current_addr,
+    output reg done,
+    output reg [ADDR_WIDTH-1:0] waddr
 
 );
 
-parameter IDLE = 2'b00, READ = 2'b01, WRITE = 2'b10;
-reg [1:0] state, next_state;
+parameter IDLE = 3'b000, READ = 3'b001, WRITE = 3'b010,NEXT_ROW=3'b011 ,DONE=3'b100;
+reg [2:0] state, next_state;
 reg [DATA_WIDTH-1:0] ram [0:NUM_PORTS-1];
-reg [4-1:0] count_main;
-reg [ADDR_WIDTH-1:0] current_addr;
+reg [4-1:0] count_main,row_cnt;
+
+
 always @(posedge clk) begin
 if(rst) begin
     state <= IDLE;
@@ -41,7 +45,8 @@ end
 else state <= next_state;
 end
 
-always @(state) begin
+always @(*) begin
+case(state)
     IDLE: begin
         if (start) begin
             next_state = READ;
@@ -50,22 +55,38 @@ always @(state) begin
         end
     end
     READ: begin
-        if (count_main < NUM_PORTS) begin
-            next_state = READ;
-        end else begin
+        if (count_main == NUM_PORTS-1) begin
             next_state = WRITE;
+        end else begin
+            next_state = READ;
         end
     end
     WRITE: begin
+
+        next_state = NEXT_ROW;
+    end
+    NEXT_ROW: begin
+                if (row_cnt == NUM_PORTS-1) begin
+                    next_state = DONE;  // All 16 columns done
+                end else begin
+                    next_state = READ;      // Process next column
+                end
+    end
+    DONE: begin
         next_state = IDLE;
     end
+    default: next_state = IDLE;
+    endcase
 end
 always @(posedge clk) begin
+case(state)
     IDLE: begin
         count_main <= 0;
         current_addr <= base_addr;
         done <= 0;
         we <= 0;
+        row_cnt <= 0;
+        waddr <= 0;
         data_out_0 <= 0;
         data_out_1 <= 0;
         data_out_2 <= 0;
@@ -83,8 +104,9 @@ always @(posedge clk) begin
         data_out_14 <= 0;
         data_out_15 <= 0;
     end
-    LOAD: begin
+    READ: begin
         ram[count_main] <= data_in;
+        current_addr <= current_addr + MATRIX_WIDTH;  // Corrected to jump to the next row's same column    
         count_main <= count_main + 1;
         if (count_main == NUM_PORTS - 1) begin
             count_main <= 0;
@@ -92,6 +114,7 @@ always @(posedge clk) begin
     end
     WRITE: begin
         we <= 1;
+        waddr <= row_cnt;
         data_out_0 <= ram[0];
         data_out_1 <= ram[1];
         data_out_2 <= ram[2];
@@ -108,7 +131,20 @@ always @(posedge clk) begin
         data_out_13 <= ram[13];
         data_out_14 <= ram[14];
         data_out_15 <= ram[15];
-        done <= 1;
+
     end
+    NEXT_ROW: begin
+        we <= 0;
+        row_cnt <= row_cnt + 1;
+        current_addr <= base_addr + row_cnt + 1; // Move to the next row's first column
+        if (row_cnt == NUM_PORTS - 1) begin
+            row_cnt <= 0; // Reset for next full operation
+        end
+    end
+    DONE: begin
+        done <= 1;
+        we <= 0;
+    end
+    endcase
 end
 endmodule

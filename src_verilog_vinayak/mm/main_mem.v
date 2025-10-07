@@ -8,17 +8,27 @@ module main_mem #(
     input rst,
     input we,
     input [DATA_WIDTH-1:0] data_in,
-    input [ADDR_BITS-1:0] addr;
+    input [ADDR_BITS-1:0] waddr,
+    input [ADDR_BITS-1:0] raddr,
     output [DATA_WIDTH-1:0] data_out
 );
 
 reg [DATA_WIDTH-1:0] mem [0:DEPTH-1];
+        integer i;
+    // Fill memory with values 1-5 in a repeating pattern
+    initial begin
 
+        for (i = 0; i < DEPTH; i = i + 1) begin
+            mem[i] = (i % 5) + 1;  // Values: 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, ...
+        end
+        $display("Memory initialized with values 1-5");
+    end
+    
 always @(posedge clk) begin
     if (we) begin
-        mem[addr] <= data_in;
+        mem[waddr] <= data_in;
     end
 end
-assign data_out = mem[addr];
+assign data_out = mem[raddr];
 
 endmodule
