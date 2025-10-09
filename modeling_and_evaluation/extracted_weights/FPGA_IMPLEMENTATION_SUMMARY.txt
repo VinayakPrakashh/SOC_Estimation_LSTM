@@ -1,0 +1,114 @@
+================================================================================
+LSTM MODEL WEIGHTS FOR FPGA IMPLEMENTATION
+================================================================================
+
+MODEL SPECIFICATIONS:
+--------------------------------------------------
+Input features: 5 (Voltage, Current, Temperature, Power, Capacity)
+Hidden size: 94 neurons per layer
+Number of layers: 4
+Output: 1 (State of Charge)
+
+LAYER STRUCTURE:
+--------------------------------------------------
+
+Layer 0:
+  Input size: 5
+  Hidden size: 94
+  Gates: 4 (input, forget, cell, output)
+  Files generated:
+    - layer0_input_gate_weight_ih.txt   [94 x 5]
+    - layer0_input_gate_weight_hh.txt   [94 x 94]
+    - layer0_input_gate_bias_ih.txt     [94]
+    - layer0_input_gate_bias_hh.txt     [94]
+    - layer0_forget_gate_weight_ih.txt   [94 x 5]
+    - layer0_forget_gate_weight_hh.txt   [94 x 94]
+    - layer0_forget_gate_bias_ih.txt     [94]
+    - layer0_forget_gate_bias_hh.txt     [94]
+    - layer0_cell_gate_weight_ih.txt   [94 x 5]
+    - layer0_cell_gate_weight_hh.txt   [94 x 94]
+    - layer0_cell_gate_bias_ih.txt     [94]
+    - layer0_cell_gate_bias_hh.txt     [94]
+    - layer0_output_gate_weight_ih.txt   [94 x 5]
+    - layer0_output_gate_weight_hh.txt   [94 x 94]
+    - layer0_output_gate_bias_ih.txt     [94]
+    - layer0_output_gate_bias_hh.txt     [94]
+
+Layer 1:
+  Input size: 94
+  Hidden size: 94
+  Gates: 4 (input, forget, cell, output)
+  Files generated:
+    - layer1_input_gate_weight_ih.txt   [94 x 94]
+    - layer1_input_gate_weight_hh.txt   [94 x 94]
+    - layer1_input_gate_bias_ih.txt     [94]
+    - layer1_input_gate_bias_hh.txt     [94]
+    - layer1_forget_gate_weight_ih.txt   [94 x 94]
+    - layer1_forget_gate_weight_hh.txt   [94 x 94]
+    - layer1_forget_gate_bias_ih.txt     [94]
+    - layer1_forget_gate_bias_hh.txt     [94]
+    - layer1_cell_gate_weight_ih.txt   [94 x 94]
+    - layer1_cell_gate_weight_hh.txt   [94 x 94]
+    - layer1_cell_gate_bias_ih.txt     [94]
+    - layer1_cell_gate_bias_hh.txt     [94]
+    - layer1_output_gate_weight_ih.txt   [94 x 94]
+    - layer1_output_gate_weight_hh.txt   [94 x 94]
+    - layer1_output_gate_bias_ih.txt     [94]
+    - layer1_output_gate_bias_hh.txt     [94]
+
+Layer 2:
+  Input size: 94
+  Hidden size: 94
+  Gates: 4 (input, forget, cell, output)
+  Files generated:
+    - layer2_input_gate_weight_ih.txt   [94 x 94]
+    - layer2_input_gate_weight_hh.txt   [94 x 94]
+    - layer2_input_gate_bias_ih.txt     [94]
+    - layer2_input_gate_bias_hh.txt     [94]
+    - layer2_forget_gate_weight_ih.txt   [94 x 94]
+    - layer2_forget_gate_weight_hh.txt   [94 x 94]
+    - layer2_forget_gate_bias_ih.txt     [94]
+    - layer2_forget_gate_bias_hh.txt     [94]
+    - layer2_cell_gate_weight_ih.txt   [94 x 94]
+    - layer2_cell_gate_weight_hh.txt   [94 x 94]
+    - layer2_cell_gate_bias_ih.txt     [94]
+    - layer2_cell_gate_bias_hh.txt     [94]
+    - layer2_output_gate_weight_ih.txt   [94 x 94]
+    - layer2_output_gate_weight_hh.txt   [94 x 94]
+    - layer2_output_gate_bias_ih.txt     [94]
+    - layer2_output_gate_bias_hh.txt     [94]
+
+Layer 3:
+  Input size: 94
+  Hidden size: 94
+  Gates: 4 (input, forget, cell, output)
+  Files generated:
+    - layer3_input_gate_weight_ih.txt   [94 x 94]
+    - layer3_input_gate_weight_hh.txt   [94 x 94]
+    - layer3_input_gate_bias_ih.txt     [94]
+    - layer3_input_gate_bias_hh.txt     [94]
+    - layer3_forget_gate_weight_ih.txt   [94 x 94]
+    - layer3_forget_gate_weight_hh.txt   [94 x 94]
+    - layer3_forget_gate_bias_ih.txt     [94]
+    - layer3_forget_gate_bias_hh.txt     [94]
+    - layer3_cell_gate_weight_ih.txt   [94 x 94]
+    - layer3_cell_gate_weight_hh.txt   [94 x 94]
+    - layer3_cell_gate_bias_ih.txt     [94]
+    - layer3_cell_gate_bias_hh.txt     [94]
+    - layer3_output_gate_weight_ih.txt   [94 x 94]
+    - layer3_output_gate_weight_hh.txt   [94 x 94]
+    - layer3_output_gate_bias_ih.txt     [94]
+    - layer3_output_gate_bias_hh.txt     [94]
+
+Final Layer (fc):
+  Weight: fc_weight.txt [1, 94]
+  Bias: fc_bias.txt [1]
+
+================================================================================
+FPGA IMPLEMENTATION NOTES:
+================================================================================
+1. Each gate requires matrix multiplication: W*x + U*h + b
+2. Activations: sigmoid for input/forget/output gates, tanh for cell gate
+3. Memory requirements: ~89K parameters total
+4. Precision: 32-bit floating point (can be quantized for FPGA)
+5. Processing: Sequential (20 time steps) for each input sequence
