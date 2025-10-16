@@ -4,7 +4,7 @@
 module tile_load_top #(
     parameter DATA_WIDTH = 12,
     parameter ADDR_BITS = 14,
-    parameter DEPTH = 96*96
+    parameter DEPTH = 16*16
 
 ) (
     input clk,
@@ -31,7 +31,7 @@ wire wr_en_row;
 main_mem #(
     .DATA_WIDTH(DATA_WIDTH),
     .ADDR_BITS(ADDR_BITS),
-    .DEPTH(DEPTH)
+    .DEPTH(256)
 ) u_main_mem (
     .clk(clk),
     .rst(rst),
@@ -46,7 +46,7 @@ bram_burst #(
     .DATA_WIDTH(DATA_WIDTH),
     .ADDR_WIDTH(ADDR_BITS),
     .NUM_PORTS(16),
-    .MATRIX_WIDTH(96)
+    .MATRIX_WIDTH(16)
 ) u_bram_burst (
     .clk(clk),
     .rst(rst),

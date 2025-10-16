@@ -2,8 +2,8 @@ module bram_burst #(
     parameter DATA_WIDTH = 12,
     parameter ADDR_WIDTH = 10,
     parameter NUM_PORTS = 16,
-    parameter MATRIX_WIDTH = 96 // Number of columns in the matrix
-) (
+    parameter MATRIX_WIDTH = 16
+    )(
     input clk,
     input rst,
     input start,
