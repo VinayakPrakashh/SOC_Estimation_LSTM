@@ -2,7 +2,7 @@ import numpy as np
 
 def create_readmemh_file_corrected():
     # Load the padded matrix
-    W_padded = np.loadtxt("W_all_matrix_padded.csv", delimiter=",")
+    W_padded = np.loadtxt("W_all_matrix_padded_transposed.csv", delimiter=",")
     print(f"Matrix shape: {W_padded.shape}")
     
     def float_to_fixed_point_sign_magnitude(val, frac_bits=6, total_bits=12):
@@ -53,7 +53,7 @@ def create_readmemh_file_corrected():
                 fixed_val = float_to_fixed_point_sign_magnitude(val)
                 f.write(f"{fixed_val:03X}\n")
     
-    print("✓ Created weight_matrix_corrected_clean.mem")
+    print("✓ Created weight_matrix_corrected_clean_transpose.mem")
     
     # Show examples of the corrected conversion
     print("\nCorrected conversions (Sign-Magnitude):")

@@ -37,7 +37,7 @@ reg [DATA_WIDTH-1:0] mem [0:DEPTH-1];
 //    end
 //    end
    initial begin
-        $readmemh("readmem.mem", mem);
+        $readmemh("weight.mem", mem);
         $display("Weight memory initialized from file");
     end
 always @(posedge clk) begin
