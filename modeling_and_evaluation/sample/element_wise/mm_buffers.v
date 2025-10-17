@@ -67,7 +67,7 @@ module buffer_f #(
 endmodule
 
 // Cell Gate Buffer
-module buffer_c #(
+module buffer_g #(
     parameter DATA_WIDTH = 12,
     parameter ADDRESS_BITS = 2
 ) (

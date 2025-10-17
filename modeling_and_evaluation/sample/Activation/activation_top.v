@@ -35,7 +35,7 @@ buffer_f forget_buffer (
 );
 
 // Instantiate Cell Gate Buffer
-buffer_c cell_buffer (
+buffer_g cell_buffer (
     .clk(clk),
     .rst(rst),
     .we(),

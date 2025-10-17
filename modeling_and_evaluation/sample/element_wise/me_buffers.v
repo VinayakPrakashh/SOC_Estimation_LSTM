@@ -1,5 +1,5 @@
 // Input Gate Buffer
-module buffer_i #(
+module buffer_i_me #(
     parameter DATA_WIDTH = 12,
     parameter ADDRESS_BITS = 2
 ) (
@@ -15,13 +15,13 @@ module buffer_i #(
     // Memory array
     reg [DATA_WIDTH-1:0] mem_array [0:(1<<ADDRESS_BITS)-1];
 
-    // Initialize with Input gate linear values (S5.6 format)
-     initial begin
-         mem_array[0] = 12'h046;  // 1.1 = 1*64 + 0.1*64 = 70 = 0x046
-         mem_array[1] = 12'h0C6;  // 3.1 = 3*64 + 0.1*64 = 198 = 0x0C6
-         mem_array[2] = 12'h10D;  // 4.2 = 4*64 + 0.2*64 = 269 = 0x10D
-         mem_array[3] = 12'h079;  // 1.9 = 1*64 + 0.9*64 = 121 = 0x079
-     end
+    // Initialize with Input gate activated values (S5.6 format)
+    // initial begin
+    //     mem_array[0] = 12'h030;  // 0.75026011 ≈ 0.75 = 0*64 + 0.75*64 = 48 = 0x030
+    //     mem_array[1] = 12'h03D;  // 0.95689275 ≈ 0.96 = 0*64 + 0.96*64 = 61 = 0x03D
+    //     mem_array[2] = 12'h03F;  // 0.98522597 ≈ 0.98 = 0*64 + 0.98*64 = 63 = 0x03F
+    //     mem_array[3] = 12'h037;  // 0.86989153 ≈ 0.87 = 0*64 + 0.87*64 = 56 = 0x037
+    // end
 
     // Write operation
     always @(posedge clk) begin
@@ -34,7 +34,7 @@ module buffer_i #(
 endmodule
 
 // Forget Gate Buffer
-module buffer_f #(
+module buffer_f_me #(
     parameter DATA_WIDTH = 12,
     parameter ADDRESS_BITS = 2
 ) (
@@ -50,18 +50,18 @@ module buffer_f #(
     // Memory array
     reg [DATA_WIDTH-1:0] mem_array [0:(1<<ADDRESS_BITS)-1];
 
-    // Initialize with Forget gate linear values (S5.6 format)
-     initial begin
-         mem_array[0] = 12'h0AB;  // 2.67 = 2*64 + 0.67*64 = 171 = 0x0AB
-         mem_array[1] = 12'h01A;  // 0.41 = 0*64 + 0.41*64 = 26 = 0x01A
-         mem_array[2] = 12'h356;  // 13.36 = 13*64 + 0.36*64 = 854 = 0x356
-         mem_array[3] = 12'hFF8;  // -0.12 = -(0*64 + 0.12*64) = -8 = 0xFF8 (2's complement)
-     end
+    // // Initialize with Forget gate activated values (S5.6 format)
+    // initial begin
+    //     mem_array[0] = 12'h03B;  // 0.93523303 ≈ 0.94 = 0*64 + 0.94*64 = 60 = 0x03C, but 59=0x03B
+    //     mem_array[1] = 12'h026;  // 0.60108788 ≈ 0.60 = 0*64 + 0.60*64 = 38 = 0x026
+    //     mem_array[2] = 12'h040;  // 0.99999842 ≈ 1.00 = 1*64 + 0.00*64 = 64 = 0x040
+    //     mem_array[3] = 12'h01E;  // 0.47003595 ≈ 0.47 = 0*64 + 0.47*64 = 30 = 0x01E
+    // end
 
     // Write operation
     always @(posedge clk) begin
         if (we) begin
-            mem_array[raddr] <= din;
+            mem_array[addr] <= din;
         end
     end
 
@@ -69,7 +69,7 @@ module buffer_f #(
 endmodule
 
 // Cell Gate Buffer
-module buffer_g #(
+module buffer_g_me #(
     parameter DATA_WIDTH = 12,
     parameter ADDRESS_BITS = 2
 ) (
@@ -85,13 +85,13 @@ module buffer_g #(
     // Memory array
     reg [DATA_WIDTH-1:0] mem_array [0:(1<<ADDRESS_BITS)-1];
 
-    // // Initialize with Cell gate linear values (S5.6 format)
-     initial begin
-         mem_array[0] = 12'h01F;  // 0.492 = 0*64 + 0.492*64 = 31 = 0x01F
-         mem_array[1] = 12'h069;  // 1.638 = 1*64 + 0.638*64 = 105 = 0x069
-         mem_array[2] = 12'h083;  // 2.042 = 2*64 + 0.042*64 = 131 = 0x083
-         mem_array[3] = 12'h03C;  // 0.938 = 0*64 + 0.938*64 = 60 = 0x03C
-     end
+    // // Initialize with Cell gate activated values (S5.6 format)
+    // initial begin
+    //     mem_array[0] = 12'h01D;  // 0.45580236 ≈ 0.46 = 0*64 + 0.46*64 = 29 = 0x01D
+    //     mem_array[1] = 12'h03B;  // 0.92719246 ≈ 0.93 = 0*64 + 0.93*64 = 59 = 0x03B
+    //     mem_array[2] = 12'h03E;  // 0.96687783 ≈ 0.97 = 0*64 + 0.97*64 = 62 = 0x03E
+    //     mem_array[3] = 12'h02F;  // 0.734302   ≈ 0.73 = 0*64 + 0.73*64 = 47 = 0x02F
+    // end
 
     // Write operation
     always @(posedge clk) begin
@@ -104,7 +104,7 @@ module buffer_g #(
 endmodule
 
 // Output Gate Buffer
-module buffer_o #(
+module buffer_o_me #(
     parameter DATA_WIDTH = 12,
     parameter ADDRESS_BITS = 2
 ) (
@@ -120,13 +120,13 @@ module buffer_o #(
     // Memory array
     reg [DATA_WIDTH-1:0] mem_array [0:(1<<ADDRESS_BITS)-1];
 
-    // Initialize with Output gate linear values (S5.6 format)
-     initial begin
-         mem_array[0] = 12'h03F;  // 0.984 = 0*64 + 0.984*64 = 63 = 0x03F
-         mem_array[1] = 12'h0A4;  // 2.556 = 2*64 + 0.556*64 = 164 = 0x0A4
-         mem_array[2] = 12'h0DD;  // 3.464 = 3*64 + 0.464*64 = 221 = 0x0DD
-         mem_array[3] = 12'h05C;  // 1.436 = 1*64 + 0.436*64 = 92 = 0x05C
-     end
+    // Initialize with Output gate activated values (S5.6 format)
+    // initial begin
+    //     mem_array[0] = 12'h02E;  // 0.72790118 ≈ 0.73 = 0*64 + 0.73*64 = 47 = 0x02F, but 46=0x02E
+    //     mem_array[1] = 12'h03B;  // 0.92797557 ≈ 0.93 = 0*64 + 0.93*64 = 59 = 0x03B
+    //     mem_array[2] = 12'h03E;  // 0.96964592 ≈ 0.97 = 0*64 + 0.97*64 = 62 = 0x03E
+    //     mem_array[3] = 12'h033;  // 0.80783446 ≈ 0.81 = 0*64 + 0.81*64 = 52 = 0x034, but 51=0x033
+    // end
 
     // Write operation
     always @(posedge clk) begin

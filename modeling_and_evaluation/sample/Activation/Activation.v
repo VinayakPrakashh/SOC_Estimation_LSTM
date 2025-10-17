@@ -25,7 +25,7 @@ module activate #(
     output reg [ADDRESS_BITS-1:0] in_addr_o,
     output reg [DATA_WIDTH-1:0] out_data_o,
     output reg we_o,
-    
+    output reg [ADDRESS_BITS-1:0] address,
     output reg done
 );
 
@@ -36,8 +36,7 @@ localparam ACTIVATE = 3'b010; // Process valid data from BRAM
 localparam DONE = 3'b011;
 
 reg [2:0] state, next_state;
-reg [ADDRESS_BITS-1:0] counter;
-
+reg [1:0] counter;
 // Activation function outputs
 wire [DATA_WIDTH-1:0] sigmoid_out_i, sigmoid_out_f, sigmoid_out_o;
 wire [DATA_WIDTH-1:0] tanh_out_c;
@@ -118,11 +117,13 @@ always @(posedge clk or posedge rst) begin
         out_data_i <= 0; out_data_f <= 0; out_data_c <= 0; out_data_o <= 0;
         we_i <= 0; we_f <= 0; we_c <= 0; we_o <= 0;
         done <= 0;
+        address <= 0;
     end else begin
         case (state)
             IDLE: begin
                 we_i <= 0; we_f <= 0; we_c <= 0; we_o <= 0;
                 done <= 0;
+                address <= 0;
             end
             
             READ: begin
@@ -135,21 +136,23 @@ always @(posedge clk or posedge rst) begin
                 // No write during read
                 we_i <= 0; we_f <= 0; we_c <= 0; we_o <= 0;
             end
-            
+        
             ACTIVATE: begin
+                
                 // Data is now valid from BRAM, apply activations
                 out_data_i <= sigmoid_out_i;
                 out_data_f <= sigmoid_out_f;
                 out_data_c <= tanh_out_c;
                 out_data_o <= sigmoid_out_o;
-                
-                // Keep addresses stable
-                // (addresses were set in READ state)
-            
-                we_i <= 1; we_f <= 1; we_c <= 1; we_o <= 1;
+
+                if(counter > 0) begin
+                   address <= address + 1;
+                end 
+we_i <= 1; we_f <= 1; we_c <= 1; we_o <= 1; // Enable write
             end
             
             DONE: begin
+                address <= 0;
                 we_i <= 0; we_f <= 0; we_c <= 0; we_o <= 0;
                 done <= 1;
             end

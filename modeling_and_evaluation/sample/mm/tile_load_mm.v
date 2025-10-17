@@ -34,7 +34,20 @@ wire [DATA_WIDTH-1:0] data_out_i, data_out_f;
 wire [DATA_WIDTH-1:0] data_out_o, data_out_g;
 wire [DATA_WIDTH-1:0] bias_data;
 wire [GATE_MEM_BTS-1:0] raddr_bias;
-
+wire done_activate;
+wire [DATA_WIDTH-1:0] data_from_i, data_from_f;
+wire [DATA_WIDTH-1:0] data_from_o, data_from_g;
+wire [ADDR_BITS-1:0] addr_g, addr_f, addr_i, addr_o;
+wire [DATA_WIDTH-1:0] out_me_i, out_me_f;
+wire [DATA_WIDTH-1:0] out_me_o, out_me_g;
+wire we_me_i, we_me_f;
+wire we_me_o, we_me_g;
+wire [ADDR_BITS-1:0] addr_me; // Address for activated memory
+wire done_me;
+wire [ADDR_BITS-1:0] addr_element; // Address for element wise operation
+wire [DATA_WIDTH-1:0] register_i, register_f;
+wire [DATA_WIDTH-1:0] register_o, register_g;
+wire [DATA_WIDTH-1:0] ct; // C(t-1) previous cell state
 
 
 main_mem #(
@@ -131,7 +144,7 @@ store_gates #(
     .clk(clk),
     .rst(rst),
     .start(done_sys),
-    .done(done_final),
+    .done(done_activate),
     .we(we_gates),
     .waddr(waddr_gates),
     .data_out_i(data_out_i),
@@ -166,8 +179,9 @@ buffer_i #(
     .rst(rst),
     .we(we_gates),
     .addr(waddr_gates),
+    .raddr(addr_i),
     .din(data_out_i),
-    .dout()
+    .dout(data_from_i)
 );
 buffer_f #(
     .DATA_WIDTH(DATA_WIDTH),
@@ -177,8 +191,9 @@ buffer_f #(
     .rst(rst),
     .we(we_gates),
     .addr(waddr_gates),
+    .raddr(addr_f),
     .din(data_out_f),
-    .dout()
+    .dout(data_from_f)
 );
 buffer_o #(
     .DATA_WIDTH(DATA_WIDTH),
@@ -188,8 +203,9 @@ buffer_o #(
     .rst(rst),
     .we(we_gates),
     .addr(waddr_gates),
+    .raddr(addr_o),
     .din(data_out_o),
-    .dout()
+    .dout(data_from_o)
 );
 buffer_g #(
     .DATA_WIDTH(DATA_WIDTH),
@@ -199,8 +215,9 @@ buffer_g #(
     .rst(rst),
     .we(we_gates),
     .addr(waddr_gates),
+    .raddr(addr_g),
     .din(data_out_g),
-    .dout()
+    .dout(data_from_g)
 );
 bias_mem #(
     .DATA_WIDTH(DATA_WIDTH),
@@ -216,5 +233,126 @@ bias_mem #(
     .we(0),                         // Write enable
     .waddr(0),      // Write address
     .data_in(0)    // Write data
+);
+
+activate #(
+    .DATA_WIDTH(DATA_WIDTH),
+    .ADDRESS_BITS(2)
+) u_activate (
+    .clk(clk),
+    .rst(rst),
+    .start(done_activate),
+    // input gate
+    .in_data_i(data_from_i),
+    .in_addr_i(addr_i),
+    .out_data_i(out_me_i),
+    .we_i(we_me_i),
+    // forget gate
+    .in_data_f(data_from_f),
+    .in_addr_f(addr_f),
+    .out_data_f(out_me_f),
+    .we_f(we_me_f),
+    // candidate gate
+    .in_data_c(data_from_g),
+    .in_addr_c(addr_g),
+    .out_data_c(out_me_g),
+    .we_c(we_me_g),
+    // output gate
+    .in_data_o(data_from_o),
+    .in_addr_o(addr_o),
+    .out_data_o(out_me_o),
+    .we_o(we_me_o),
+    .address(addr_me),
+    .done(done_me)
+);
+
+
+buffer_i_me #(
+    .DATA_WIDTH(DATA_WIDTH),
+    .ADDRESS_BITS(2)
+) u_buffer_i_me (
+    .clk(clk),
+    .rst(rst),
+    .we(we_me_i),
+    .addr(addr_me),
+    .raddr(addr_element),
+    .din(out_me_i),
+    .dout(register_i)
+);
+buffer_f_me #(
+    .DATA_WIDTH(DATA_WIDTH),
+    .ADDRESS_BITS(2)
+) u_buffer_f_me (
+    .clk(clk),
+    .rst(rst),
+    .we(we_me_f),
+    .addr(addr_me),
+    .raddr(addr_element),
+    .din(out_me_f),
+    .dout(register_f)
+);
+
+buffer_o_me #(
+    .DATA_WIDTH(DATA_WIDTH),
+    .ADDRESS_BITS(2)
+) u_buffer_o_me (
+    .clk(clk),
+    .rst(rst),
+    .we(we_me_o),
+    .addr(addr_me),
+    .raddr(addr_element),
+    .din(out_me_o),
+    .dout(register_o)
+);
+buffer_g_me #(
+    .DATA_WIDTH(DATA_WIDTH),
+    .ADDRESS_BITS(2)
+) u_buffer_g_me (
+    .clk(clk),
+    .rst(rst),
+    .we(we_me_g),
+    .addr(addr_me),
+    .raddr(addr_element),
+    .din(out_me_g),
+    .dout(register_g)
+);
+
+element_wise #(
+    .DATA_WIDTH(DATA_WIDTH),
+    .ADDRESS_BITS(2)
+) u_element_wise (
+    .clk(clk),
+    .rst(rst),
+    .start(done_me),
+    
+    // Activated gate values from buffers
+    .i_register_i(register_i),  // Input gate (i)
+    .f_register_i(register_f),  // Forget gate (f)
+    .c_register_i(register_g),  // Cell gate (g)
+    .o_register_i(register_o),  // Output gate (o)
+    
+    // Previous cell state input
+    .ct_minus_1(ct),    // C(t-1)
+    
+    // Address outputs to read from buffers
+    .o_addr_o(addr_element),
+    
+    // LSTM outputs
+    .ct_output(),    // New cell state C(t)
+    .ht_output(),    // Hidden state h(t)
+    .done(),
+    .we()
+);
+ct_minus_1 #(
+    .DATA_WIDTH(DATA_WIDTH),
+    .ADDRESS_BITS(2)
+) u_ct_minus_1 (
+    .clk(clk),
+    .rst(rst),
+    .we(),
+    .addr(),
+    .raddr(addr_element),
+    .din(),
+    .dout(ct)
 );
 endmodule
