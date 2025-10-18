@@ -1,6 +1,7 @@
 `timescale 1ns / 1ps
 
 
+
 module tile_load_top #(
     parameter DATA_WIDTH = 12,
     parameter ADDR_BITS = 14,
@@ -11,7 +12,8 @@ module tile_load_top #(
     input clk,
     input rst,
     input start,
-    output done
+    output done,
+    output [DATA_WIDTH-1:0] final_ht // Input gate
     
 );
 
@@ -49,6 +51,7 @@ wire [DATA_WIDTH-1:0] register_i, register_f;
 wire [DATA_WIDTH-1:0] register_o, register_g;
 wire [DATA_WIDTH-1:0] ct; // C(t-1) previous cell state
 
+assign final_ht = bias_data; // Output the hidden state h(t) from output gate buffer
 
 main_mem #(
     .DATA_WIDTH(DATA_WIDTH),
