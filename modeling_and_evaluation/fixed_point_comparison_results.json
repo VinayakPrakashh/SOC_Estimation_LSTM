@@ -1,0 +1,17 @@
+{
+  "floating_point": {
+    "mse": 1.541875896575247e-05,
+    "mae": 0.0023456010866542898
+  },
+  "fixed_point_s7_8": {
+    "mse": 1.746811491534469e-05,
+    "mae": 0.00275295566230124
+  },
+  "quantization_error": {
+    "rms_error": 0.0013609090982511444,
+    "max_error": 0.004686087369918823,
+    "snr_db": 53.28433805505903,
+    "mse_degradation_percent": 13.29131581954272,
+    "mae_degradation_percent": 17.366745691100917
+  }
+}
