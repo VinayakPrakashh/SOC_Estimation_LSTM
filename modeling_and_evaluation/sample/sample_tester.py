@@ -51,6 +51,6 @@ def lstm_with_concat():
     o = 1 / (1 + np.exp(-z_o))
     c_t = f * c_prev + i * g
     h_t = o * np.tanh(c_t)
-print("New cell state c_t:",c_t)
-print("New hidden state h_t:", h_t)
+    print("New cell state c_t:",c_t)
+    print("New hidden state h_t:", h_t)
 lstm_with_concat()
