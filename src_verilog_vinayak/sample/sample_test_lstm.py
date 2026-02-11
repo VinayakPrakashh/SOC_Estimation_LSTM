@@ -44,6 +44,10 @@ def lstm_with_hidden():
     linear_f = W_ih_f @ x + W_hh_f @ h_prev + b_f
     linear_c = W_ih_c @ x + W_hh_c @ h_prev + b_c
     linear_o = W_ih_o @ x + W_hh_o @ h_prev + b_o
+
+    
+
+
     
     print(f"Input gate linear:  {linear_i}")
     print(f"Forget gate linear: {linear_f}")
